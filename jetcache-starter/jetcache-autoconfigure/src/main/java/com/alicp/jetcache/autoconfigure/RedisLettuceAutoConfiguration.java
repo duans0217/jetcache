@@ -17,8 +17,8 @@ import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.cluster.ClusterTopologyRefreshOptions;
 import io.lettuce.core.cluster.RedisClusterClient;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
-import io.lettuce.core.masterreplica.MasterReplica;
-import io.lettuce.core.masterreplica.StatefulRedisMasterReplicaConnection;
+import io.lettuce.core.masterslave.MasterSlave;
+import io.lettuce.core.masterslave.StatefulRedisMasterSlaveConnection;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -88,7 +88,7 @@ public class RedisLettuceAutoConfiguration {
                     client = RedisClient.create();
                     ((RedisClient) client).setOptions(ClientOptions.builder().
                             disconnectedBehavior(ClientOptions.DisconnectedBehavior.REJECT_COMMANDS).build());
-                    StatefulRedisMasterReplicaConnection c = MasterReplica.connect(
+                    StatefulRedisMasterSlaveConnection c = MasterSlave.connect(
                             (RedisClient) client, new JetCacheCodec(), uriList);
                     if (readFrom != null) {
                         c.setReadFrom(readFrom);

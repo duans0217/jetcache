@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.BinaryJedisPubSub;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.UnifiedJedis;
 
 import java.nio.charset.StandardCharsets;
 
@@ -39,11 +38,8 @@ public class RedisBroadcastManager extends BroadcastManager {
         this.config = config;
 
         checkConfig(config);
-        if (config.getJedis() == null && config.getJedisPool() == null) {
+        if (config.getJedisPool() == null) {
             throw new CacheConfigException("no jedis");
-        }
-        if (config.getJedis() != null && config.getJedisPool() != null) {
-            throw new CacheConfigException("'jedis' and 'jedisPool' can't set simultaneously");
         }
     }
 
@@ -73,9 +69,6 @@ public class RedisBroadcastManager extends BroadcastManager {
             if (jedisObj instanceof Jedis) {
                 subscribe = true;
                 ((Jedis) jedisObj).subscribe(cacheMessagePubSub, channel);
-            } else if (jedisObj instanceof UnifiedJedis) {
-                subscribe = true;
-                ((UnifiedJedis) jedisObj).subscribe(cacheMessagePubSub, channel);
             }
         } catch (Throwable e) {
             SquashedLogger.getLogger(logger).error("run jedis subscribe thread error: {}", e);
@@ -91,7 +84,7 @@ public class RedisBroadcastManager extends BroadcastManager {
     }
 
     Object writeCommands() {
-        return config.getJedis() != null ? config.getJedis() : config.getJedisPool().getResource();
+        return config.getJedisPool().getResource();
     }
 
     @Override
@@ -102,8 +95,6 @@ public class RedisBroadcastManager extends BroadcastManager {
             byte[] value = config.getValueEncoder().apply(message);
             if (jedisObj instanceof Jedis) {
                 ((Jedis) jedisObj).publish(channel, value);
-            } else {
-                ((UnifiedJedis) jedisObj).publish(channel, value);
             }
             return CacheResult.SUCCESS_WITHOUT_MSG;
         } catch (Exception ex) {
@@ -113,7 +104,6 @@ public class RedisBroadcastManager extends BroadcastManager {
             RedisCache.closeJedis(jedisObj);
         }
     }
-
 
     @Override
     public synchronized void close() {

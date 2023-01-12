@@ -15,15 +15,15 @@ import com.alicp.jetcache.redis.springdata.RedisSpringDataCacheBuilder;
 import com.alicp.jetcache.redisson.RedissonCacheBuilder;
 import com.alicp.jetcache.test.anno.TestUtil;
 import io.lettuce.core.RedisClient;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
-import redis.clients.jedis.HostAndPort;
-import redis.clients.jedis.UnifiedJedis;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import redis.clients.jedis.JedisPool;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,15 +35,20 @@ public class SyncLocalTest {
 
     @Test
     public void testJedis() throws Exception {
+        GenericObjectPoolConfig pc = new GenericObjectPoolConfig();
+        pc.setMinIdle(2);
+        pc.setMaxIdle(10);
+        pc.setMaxTotal(10);
+        JedisPool jedis = new JedisPool(pc, "127.0.0.1", 6379);
         String keyPrefix = getClass().getSimpleName() + "testJedis";
         RedisCacheBuilder remoteBuilder1 = RedisCacheBuilder.createRedisCacheBuilder()
                 .keyPrefix(keyPrefix)
-                .broadcastChannel(keyPrefix)
-                .jedis(new UnifiedJedis(new HostAndPort("127.0.0.1", 6379)));
+                .broadcastChannel(keyPrefix).jedisPool(jedis);
+                //.jedis(new UnifiedJedis(new HostAndPort("127.0.0.1", 6379)));
         RedisCacheBuilder remoteBuilder2 = RedisCacheBuilder.createRedisCacheBuilder()
                 .keyPrefix(keyPrefix)
-                .broadcastChannel(keyPrefix)
-                .jedis(new UnifiedJedis(new HostAndPort("127.0.0.1", 6379)));
+                .broadcastChannel(keyPrefix).jedisPool(jedis);
+                //.jedis(new UnifiedJedis(new HostAndPort("127.0.0.1", 6379)));
         Cache remote1 = remoteBuilder1.buildCache();
         Cache remote2 = remoteBuilder2.buildCache();
         BroadcastManager bm1 = remoteBuilder1.createBroadcastManager(new SimpleCacheManager());

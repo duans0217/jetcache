@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.util.Pool;
+import redis.clients.util.Pool;
 
 import java.util.HashMap;
 import java.util.Map;

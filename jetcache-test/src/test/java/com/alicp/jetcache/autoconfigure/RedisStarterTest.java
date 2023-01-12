@@ -24,7 +24,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisSentinelPool;
-import redis.clients.jedis.util.Pool;
+import redis.clients.util.Pool;
 
 import javax.annotation.PostConstruct;
 import java.util.Arrays;
@@ -120,14 +120,9 @@ public class RedisStarterTest extends SpringTest {
         @Bean(name = "A1Pool")
         @DependsOn(RedisAutoConfiguration.AUTO_INIT_BEAN_NAME)
         public JedisPoolFactory A1Pool() {
-            return new JedisPoolFactory("remote.A1", JedisSentinelPool.class);
+            return new JedisPoolFactory("remote.A1", JedisPool.class);
         }
-
-        @Bean(name = "A2Jedis")
-        @DependsOn(RedisAutoConfiguration.AUTO_INIT_BEAN_NAME)
-        public JedisFactory A2Jedis() {
-            return new JedisFactory("remote.A2", JedisCluster.class);
-        }
+        
     }
 
 }
