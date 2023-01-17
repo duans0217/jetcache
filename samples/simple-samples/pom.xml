@@ -36,6 +36,11 @@
             <artifactId>jetcache-redisson</artifactId>
             <version>${jetcache.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.83</version>
+        </dependency>
     </dependencies>
 
 </project>
